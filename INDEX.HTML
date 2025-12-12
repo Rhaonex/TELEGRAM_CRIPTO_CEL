@@ -1,0 +1,353 @@
+<!doctype html>
+ 
+<!-- /media/mint/PR_480_INFORMA/INFORMATICA/LINUX_COMPART/1_LINUX_MINT/BASH/TELEGRAM_CRIPTO_CEL/INDEX.HTML -->
+
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mensagem Criptografada - Enviar/Receber</title>
+
+  <style>
+
+    :root{
+      --bg: #070721; /* fundo geral */
+      --fg: #006BC5; /* texto geral */
+      --box-bg: #0000FF; /* fundo caixa mensagem */
+      --box-fg: #AAAAAA; /* texto caixa mensagem */
+      --card-radius: 10px;
+      --gap: 12px;
+      --border-sender: #A80000;
+      --border-dest: #00A800;
+    }
+
+    .h1-enc {
+      color:#A80000;
+      text-align:center;
+      width:100%;
+    }
+
+    .h1-dec {
+      color:#00A800;
+      text-align:center;
+      width:100%;
+    }
+
+    html,body{
+      user-select:none;
+      oncontextmenu="return false";
+      height:100%;
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--bg);
+      color:var(--fg);
+      scroll-behavior:smooth;
+    }
+
+    .wrap{max-width:900px;margin:24px auto;padding:20px}
+    h1{font-size:20px;margin:0 0 12px}
+    .card{background:rgba(255,255,255,0.02);border-radius:var(--card-radius);padding:16px;margin-bottom:16px}
+    label{display:block;margin-bottom:6px}
+    input[type="text"],textarea,input[type="password"]{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);box-sizing:border-box;background:transparent;color:var(--fg)}
+    textarea{min-height:120px;color:var(--box-fg);background:var(--box-bg);padding:10px}
+    .row{display:flex;gap:var(--gap);align-items:center}
+    .half{flex:1}
+    button{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;background:var(--fg);color:var(--bg)}
+    .muted{opacity:0.8;font-size:13px}
+    .small{font-size:13px}
+    .actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+
+    .output{
+
+      background:#07122a;
+      color:#cfefff;
+      padding:10px;
+      border-radius:6px;
+
+      min-height:120px;
+      max-height:120px;
+
+      overflow-y:auto;
+      overflow-x:hidden;
+
+      white-space:pre-wrap;
+      word-break:break-all;
+
+      border:2px solid #0000FF;
+
+    }
+
+    .hint{font-size:12px;color:#9ac8ff}
+    .flex-between{display:flex;justify-content:space-between;align-items:center}
+
+    .menu {
+      position:sticky;
+      top:0;
+      background:#070721;
+      padding:10px;
+      border-radius:10px;
+      margin-bottom:16px;
+      display:flex;
+      gap:10px;
+      z-index:1000;
+      box-shadow:0 2px 0 #070721;
+    }
+
+    .menu button {
+      background:#000088;
+      color:#9ac8ff;
+    }
+
+    .anchor {
+      scroll-margin-top:90px
+    }
+
+    #passEncrypt,
+    #passDecrypt{
+      border:2px solid #AA00AA;
+      outline:none;
+      box-shadow:none;
+      border-radius:6px;
+    }
+
+    .card-remetente{
+      border:3px solid #A80000;
+      border-radius:10px;
+    }
+
+    .card-destinatario{
+      border:3px solid #00A800;
+      border-radius:10px;
+    }
+
+    .RHAONE {
+      color:#AAAAAA;
+      background:#070721;
+      padding:20px;
+      text-align:center;
+      font-size: 10px;
+     }
+
+    #sec-enc{
+      scroll-margin-top:-30px;
+    }
+
+    #sec-dec{
+      scroll-margin-top:-80px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="wrap">
+
+    <div class="menu" style="display:flex;justify-content:center;gap:12px;margin-top:12px">
+      <button style="background:#000088;color:#FF0000;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px"
+              onclick="scrollAdjEnc()">IR PRA CRIPTAR</button>
+      <button style="background:#000088;color:#00FF00;font-weight:bold;text-shadow:0 0 6px #004000;border:3px solid #0000FF;border-radius:8px"
+              onclick="scrollAdjDec()">IR PRA DESCRIPTAR</button>
+    </div>
+
+    <h1 class="h1-enc">CRIPTAR MENSAGEM</h1>
+
+    <!-- div id="sec-enc" class="card anchor" -->
+    <div id="sec-enc" class="card anchor card-remetente">
+
+      <label for="plain">MENSAGEM PRA SER CRIPTADA)</label>
+      <textarea id="plain" style="background:#000088;color:#AAAAAA;border:3px solid #0000FF; placeholder="Digite a mensagem aqui..."></textarea>
+
+      <div class="row" style="margin-top:8px">
+        <div class="half">
+          <div style="display:flex;align-items:center;gap:8px">
+            <label for="passEncrypt" style="margin-bottom:0">SENHA</label>
+            <label class="small" style="display:flex;align-items:center;gap:4px;margin-bottom:0">
+            <input id="passEncrypt" type="text" placeholder="senha pra criptografar">
+            <input id="toggleShowEnc" type="checkbox"> OCULTAR </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnEncrypt"     style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')">CRIPTAR</button>
+        <button id="btnCopyEnc"     style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')">COPIAR</button>
+        <button id="btnDownloadEnc" style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')">BAIXAR</button>
+      </div>
+
+      <div style="margin-top:16px;margin-bottom:10px;display:flex;align-items:center;gap:24px">
+        <span style="font-size:16px;color:#006BC5;">
+          TEXTO CRIPTADO
+        </span>
+        <span style="font-size:16px;color:#888888;">
+          [ ENVIAR PRO 'TELEGRAM' OU 'WHATSAPP' EXATAMENTE COMO ESTA]
+        </span>
+      </div>
+      <div id="encOut" class="output"></div>
+
+    </div>
+
+    <h1 class="h1-dec">DESCRIPTAR MENSAGEM</h1>
+
+    <div id="sec-dec" class="card anchor card-destinatario">
+
+      <label for="cipherIn">COLE AQUI A MENSAGEM CRIPTADA</label>
+      <textarea id="cipherIn" style="background:#000088;color:#AAAAAA;border:3px solid #0000FF; placeholder="cole aqui o conteudo recebido ..."></textarea>
+
+      <div class="row" style="margin-top:8px">
+        <div class="half">
+          <div style="display:flex;align-items:center;gap:8px">
+            <label for="passDecrypt" style="margin-bottom:0">SENHA</label>
+            <label class="small" style="display:flex;align-items:center;gap:4px;margin-bottom:0">
+            <input id="passDecrypt" type="text" placeholder="senha pra descriptografar">
+            <input id="toggleShowEnc" type="checkbox"> OCULTAR </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnDecrypt"   style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')">DESCRIPT</button>
+        <button id="btnCopyDec"   style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>COPIAR</button>
+        <button id="btnReEncrypt" style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>RE-CRIPT</button>
+      </div>
+
+      <div style="margin-top:16px;margin-bottom:10px;display:flex;align-items:center;gap:24px">
+        <span style="font-size:16px;color:#006BC5;">
+          TEXTO DESCRIPTADO
+        </span>
+      </div>
+      <div id="encOut" class="output"></div>
+
+    </div>
+
+    <div class="RHAONE">
+      RHAONE MOAJ - 2025-12-09_084547 *** CRIPT = AES-GCM + PBKDF2 + BASE64URL
+    </div>
+
+  </div>
+
+  <script>
+
+    function scrollToSection (id) {
+      document.getElementById(id).scrollIntoView({behavior:'smooth'});
+    }
+
+    function toBase64(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf)));}
+    function fromBase64(str){const clean=str.replace(/[^A-Za-z0-9+/=]/g,'');const bin=atob(clean);const len=bin.length;const bytes=new Uint8Array(len);for(let i=0;i<len;i++){bytes[i]=bin.charCodeAt(i);}return bytes.buffer;}
+
+    async function deriveKey(password,salt){const enc=new TextEncoder();const pwKey=await crypto.subtle.importKey('raw',enc.encode(password),{name:'PBKDF2'},false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:200000,hash:'SHA-256'},pwKey,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}
+    async function encryptText(plain,password){const enc=new TextEncoder();const salt=crypto.getRandomValues(new Uint8Array(16));const iv=crypto.getRandomValues(new Uint8Array(12));const key=await deriveKey(password,salt);const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(plain));const combined=new Uint8Array(salt.byteLength+iv.byteLength+ct.byteLength);combined.set(salt,0);combined.set(iv,16);combined.set(new Uint8Array(ct),28);return toBase64(combined.buffer);}
+    async function decryptText(b64,password){const buf=fromBase64(b64);const data=new Uint8Array(buf);const salt=data.slice(0,16);const iv=data.slice(16,28);const ct=data.slice(28);const key=await deriveKey(password,salt);const plainBuf=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);return new TextDecoder().decode(plainBuf);}
+
+    /* HOOKS */
+    const plainEl   = document.getElementById('plain');
+    const passEncEl = document.getElementById('passEncrypt');
+    const passDecEl = document.getElementById('passDecrypt');
+    const encOutEl  = document.getElementById('encOut');
+    const decOutEl  = document.getElementById('decOut');
+
+    const toggleEnc = document.getElementById('toggleShowEnc');
+    const toggleDec = document.getElementById('toggleShowDec');
+    if(toggleEnc) toggleEnc.addEventListener('change',()=>{ passEncEl.type = toggleEnc.checked ? 'text':'password'; });
+    if(toggleDec) toggleDec.addEventListener('change',()=>{ passDecEl.type = toggleDec.checked ? 'text':'password'; });
+
+    document.getElementById('btnEncrypt').addEventListener('click', async ()=>{
+      try{
+        if(!plainEl.value){ alert('ESCREVA A MENSAGEM PRA CRIPTAR'); return; }
+        if(!passEncEl.value){ alert('INFORME UMA SENHA'); return; }
+        const btn = document.getElementById('btnEncrypt');
+        btn.disabled = true; btn.textContent = 'PROCESSANDO...';
+        const out = await encryptText(plainEl.value, passEncEl.value);
+        encOutEl.textContent = out;
+        document.getElementById('btnDownloadEnc').disabled = false;
+        document.getElementById('btnCopyEnc').disabled = false;
+      }catch(err){
+        console.error('ERRO ENCRYPT', err);
+        alert('ERRO AO CRIPTOGRAFAR: ' + (err && err.message));
+      }finally{
+        const btn = document.getElementById('btnEncrypt');
+        btn.disabled = false; btn.textContent = 'CRIPTOGRAFAR';
+      }
+    });
+
+    document.getElementById('btnDownloadEnc').addEventListener('click', ()=>{
+      const data = encOutEl.textContent || '';
+      const blob = new Blob([data], {type: 'text/plain;charset=utf-8'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'mensagem_criptografada.txt'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('btnCopyEnc').addEventListener('click', ()=> navigator.clipboard.writeText(encOutEl.textContent).then(()=>alert('TEXTO COPIADO'), ()=>alert('FALHA AO COPIAR')));
+
+    document.getElementById('btnDecrypt').addEventListener('click', async ()=>{
+      try {
+        const data = (document.getElementById('cipherIn').value || '');
+        if(!data){ alert('COLE AQUI A MENSAGEM CRIPTADA'); return; }
+        if(!passDecEl.value){ alert('INFORME A SENHA'); return; }
+        const btn = document.getElementById('btnDecrypt');
+        btn.disabled = true; btn.textContent = 'PROCESSANDO ...';
+        const out = await decryptText(data, passDecEl.value);
+        decOutEl.textContent = out;
+        document.getElementById('btnCopyDec').disabled = false;
+        document.getElementById('btnReEncrypt').disabled = false;
+      } catch (err){
+        console.error('ERRO DECRYPT', err);
+        alert('FALHA AO DESCRIPTAR - SENHA OU CONTEUDO INVALIDO');
+      } finally {
+        const btn = document.getElementById('btnDecrypt');
+        btn.disabled = false; btn.textContent = 'DESCRIPTOGRAFAR';
+      }
+    });
+
+    document.getElementById('btnCopyDec').addEventListener('click', ()=> navigator.clipboard.writeText(decOutEl.textContent).then(()=>alert('TEXTO COPIADO'), ()=>alert('FALHA AO COPIAR')));
+
+    document.getElementById('btnReEncrypt').addEventListener('click', async ()=>{
+      try{
+        const current = decOutEl.textContent;
+        const newPw = passDecEl.value;
+        if(!current){ alert('NAO HA TEXTO PRA RE-CRIPTOGRAFAR'); return; }
+        if(!newPw){ alert('INFORME UMA SENHA PRA A NOVA CRIPTOGRAFIA'); return; }
+        const btn = document.getElementById('btnReEncrypt');
+        btn.disabled = true; btn.textContent = 'RE-CRIPTOGRAFANDO...';
+        const newEnc = await encryptText(current, newPw);
+        document.getElementById('cipherIn').value = newEnc;
+        encOutEl.textContent = newEnc;
+        document.getElementById('btnDownloadEnc').disabled = false;
+        document.getElementById('btnCopyEnc').disabled = false;
+        alert('RE-CRIPTOGRAFADO E COLOCADO NO CAMPO DE SAIDA');
+      }catch(e){
+        alert('ERRO AO RE-CRIPTOGRAFAR');
+      }finally{
+        const btn = document.getElementById('btnReEncrypt');
+        btn.disabled = false; btn.textContent = 'RE-CRIPTOGRAFAR';
+      }
+    });
+
+    document.addEventListener('keydown',e=>{
+      if(
+        (e.ctrlKey && ['c','u','s','p'].includes(e.key.toLowerCase()))
+        || e.key === 'F12'
+      ){
+        e.preventDefault();
+      }
+    });
+
+    function scrollAdjEnc(){
+      const sec = document.getElementById('sec-enc');
+      sec.scrollIntoView({behavior:'smooth'});
+      setTimeout(()=>{ window.scrollBy(0, -140); }, 350);
+    }
+
+    function scrollAdjDec(){
+      const sec = document.getElementById('sec-dec');
+      sec.scrollIntoView({behavior:'smooth'});
+      setTimeout(()=>{ window.scrollBy(0, 140); }, 350);
+    }
+
+  </script>
+
+</body>
+
+</html>
