@@ -280,8 +280,8 @@
 
       <div class="actions">
         <button id="btnDecrypt"   style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')">DECRIP</button>
-        <!-- button id="btnCopyDec"   style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>COPIAR</button -->
-        <!-- button id="btnReEncrypt" style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>RECRIP</button -->
+        <button id="btnCopyDec"   style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>COPIAR</button>
+        <button id="btnReEncrypt" style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>RECRIP</button>
       </div>
 
       <div style="margin-top:16px;margin-bottom:10px;display:flex;align-items:center;gap:24px">
@@ -565,92 +565,49 @@
       };
     }
 
-    // COLE ISTO APÓS AS FUNCOES encryptText/decryptText, OU DENTRO DE DOMCONTENTLOADED
-    window.addEventListener('DOMContentLoaded', ()=>{
-
-      // ELEMENTOS
-      const encOutEl  = document.getElementById('encOut');   // saida cript
-      const decOutEl  = document.getElementById('decOut');   // saida decript -> CONFIRA QUE EXISTE NO HTML
-      const passDecEl = document.getElementById('passDec');
-      const passEncEl = document.getElementById('passEnc');
-
-      // BOTOES
-      const btnCopyEnc   = document.getElementById('btnCopyEnc');
-      const btnCopyDec   = document.getElementById('btnCopyDec');
-      const btnReEncrypt = document.getElementById('btnReEncrypt');
-
-      // FUNCAO AUXILIAR PARA COPIAR (trata disponibilidade)
-      async function safeCopy(text){
-        if(!navigator.clipboard) return false;
-        try{
-          await navigator.clipboard.writeText(text);
-          return true;
-        }catch(e){
-          return false;
-        }
-      }
-
-      // COPIAR SAIDA CRIPT
-      if(btnCopyEnc){
-        btnCopyEnc.addEventListener('click', async ()=>{
-          const text = (encOutEl && encOutEl.textContent) || '';
-          if(!text){ popup_errado('NAO HA TEXTO PRA COPIAR'); return; }
-          const ok = await safeCopy(text);
-          if(ok) popup_certo('TEXTO COPIADO');
-          else    popup_errado('FALHA AO COPIAR');
-        });
-      }
-
-      // COPIAR SAIDA DECRIPT
-      if(btnCopyDec){
-        btnCopyDec.addEventListener('click', async ()=>{
-          const text = (decOutEl && decOutEl.textContent) || '';
-          if(!text){ popup_errado('NAO HA TEXTO PRA COPIAR'); return; }
-          const ok = await safeCopy(text);
-          if(ok) popup_certo('TEXTO COPIADO');
-          else    popup_errado('FALHA AO COPIAR');
-        });
-      }
-
-      // RE-ENCRYPT (pega texto de decOut, re-cripta com senha de passDec, coloca em cipherIn e em encOut)
-      if(btnReEncrypt){
-        btnReEncrypt.addEventListener('click', async ()=>{
-          try{
-            const current = (decOutEl && decOutEl.textContent) || '';
-            const newPw   = (passDecEl && passDecEl.value) || '';
-            if(!current){ popup_errado('NAO HA TEXTO PRA RE-CRIPTAR'); return; }
-            if(!newPw){ popup_errado('FALTOU A SENHA'); return; }
-
-            btnReEncrypt.disabled = true;
-            btnReEncrypt.textContent = 'RE-CRIPTANDO ...';
-
-            const newEnc = await encryptText(current, newPw);
-
-            const cipherInEl = document.getElementById('cipherIn');
-            if(cipherInEl) cipherInEl.value = newEnc;
-            if(encOutEl)   encOutEl.textContent = newEnc;
-
-            const btnDownloadEnc = document.getElementById('btnDownloadEnc');
-            const btnCopyEncLocal = document.getElementById('btnCopyEnc');
-            if(btnDownloadEnc) btnDownloadEnc.disabled = false;
-            if(btnCopyEncLocal) btnCopyEncLocal.disabled = false;
-
-            popup_certo('RE-CRIPTADO E COLOCADO NO CAMPO DE SAIDA');
-          }catch(err){
-            console.error('ERRO RE-ENCRYPT', err);
-            popup_errado('ERRO AO RE-CRIPTAR');
-          }finally{
-            btnReEncrypt.disabled = false;
-            btnReEncrypt.textContent = 'RE-CRIPTAR';
-          }
-        });
-      }
-
-    });
-
   </script>
 
 </body>
 
 </html>
 
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+  const encOutEl=document.getElementById('encOut');
+  const decOutEl=document.getElementById('decOut');
+  const passDecEl=document.getElementById('passDec');
+  const btnCopyEnc=document.getElementById('btnCopyEnc');
+  if(btnCopyEnc){
+    btnCopyEnc.addEventListener('click',()=>{
+      navigator.clipboard.writeText(encOutEl.textContent)
+        .then(()=>popup_certo('TEXTO COPIADO'),
+              ()=>popup_errado('FALHA AO COPIAR'));
+    });
+  }
+  const btnReEncrypt=document.getElementById('btnReEncrypt');
+  if(btnReEncrypt){
+    btnReEncrypt.addEventListener('click',async()=>{
+      const current = decOutEl.textContent || '';
+      const newPw = passDecEl.value || '';
+      if(!current){ popup_errado('NAO HA TEXTO PRA RE-CRIPTAR'); return; }
+      if(!newPw){ popup_errado('FALTOU A SENHA'); return; }
+      btnReEncrypt.disabled=true;
+      btnReEncrypt.textContent='RE-CRIPTANDO ...';
+      try{
+        const newEnc = await encryptText(current,newPw);
+        const cipherInEl=document.getElementById('cipherIn');
+        if(cipherInEl) cipherInEl.value=newEnc;
+        encOutEl.textContent=newEnc;
+        document.getElementById('btnDownloadEnc').disabled=false;
+        document.getElementById('btnCopyEnc').disabled=false;
+        popup_certo('RE-CRIPTADO E COLOCADO NO CAMPO DE SAIDA');
+      }catch(e){
+        popup_errado('ERRO AO RE-CRIPTAR');
+      }finally{
+        btnReEncrypt.disabled=false;
+        btnReEncrypt.textContent='RE-CRIPTAR';
+      }
+    });
+  }
+});
+</script>
