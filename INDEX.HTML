@@ -149,6 +149,37 @@
 
 <body>
 
+<!-- POPUP AUTOMATICO -->
+<style>
+#popup-msg{
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#000044;
+  color:#FFFF55;
+  border:3px solid #FFAA00;
+  padding:10px 18px;
+  border-radius:10px;
+  font-weight:bold;
+  text-align:center;
+  display:none;
+  z-index:9999;
+}
+</style>
+
+<div id="popup-msg"></div>
+
+<script>
+function popup(msg){
+  const box=document.getElementById('popup-msg');
+  box.innerText=msg;
+  box.style.display='block';
+  setTimeout(()=>{ box.style.display='none'; },2500);
+}
+</script>
+
+
   <div class="wrap">
 
     <div class="menu" style="display:flex;justify-content:center;gap:12px;margin-top:12px">
@@ -277,7 +308,7 @@
     document.getElementById('btnEncrypt').addEventListener('click', async ()=>{
       try{
         if(!plainEl.value){ alert('ESCREVA A MENSAGEM PRA CRIPT'); return; }
-        if(!passEncEl.value){ alert('INFORME UMA SENHA'); return; }
+        if(!passEncEl.value){ alert('FALTOU A SENHA'); return; }
         const btn = document.getElementById('btnEncrypt');
         btn.disabled = true; btn.textContent = 'PROCESSANDO...';
         const out = await encryptText(plainEl.value, passEncEl.value);
@@ -305,7 +336,7 @@
       try {
         const data = (document.getElementById('cipherIn').value || '');
         if(!data){ alert('COLE AQUI A MENS CRIPT'); return; }
-        if(!passDecEl.value){ alert('INFORME A SENHA'); return; }
+        if(!passDecEl.value){ alert('FALTOU A SENHA'); return; }
         const btn = document.getElementById('btnDecrypt');
         btn.disabled = true; btn.textContent = 'PROCESSANDO ...';
         const out = await decryptText(data, passDecEl.value);
@@ -367,6 +398,45 @@
     }
 
   </script>
+
+
+<!-- BOTAO LIMPAR CAMPOS -->
+<div style="text-align:center;margin-top:30px;margin-bottom:40px;">
+  <button onclick="clearAllFields()" style="
+    background:#550000;
+    color:#FFFF55;
+    border:3px solid #FFAA00;
+    border-radius:8px;
+    padding:10px 20px;
+    font-weight:bold;
+    text-shadow:0 0 6px #400000;
+  ">
+    LIMPAR CAMPOS
+  </button>
+</div>
+
+<script>
+function clearAllFields(){
+
+  const plain = document.getElementById('plain');
+  const cipherOut = document.getElementById('cipherOut');
+  const passEnc = document.getElementById('passEnc');
+
+  const cipherIn = document.getElementById('cipherIn');
+  const decOut = document.getElementById('decOut');
+  const passDec = document.getElementById('passDec');
+
+  if(plain) plain.value='';
+  if(cipherOut) cipherOut.value='';
+  if(passEnc) passEnc.value='';
+
+  if(cipherIn) cipherIn.value='';
+  if(decOut) decOut.value='';
+  if(passDec) passDec.value='';
+
+  popup('CAMPOS LIMPOS');
+}
+</script>
 
 </body>
 
