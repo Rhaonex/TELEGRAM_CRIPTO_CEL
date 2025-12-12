@@ -160,7 +160,7 @@
 
     <h1 class="h1-enc">CRIPT MENSAGEM</h1>
 
-    <!-- div id="sec-enc" class="card anchor" -->
+    <div id="sec-enc-scroll" style="position:relative;top:-10px;height:1px;"></div>
     <div id="sec-enc" class="card anchor card-remetente">
 
       <label for="plain" class="TEXTO_PADRAO">
@@ -198,6 +198,7 @@
 
     <h1 class="h1-dec">DECRIPT MENSAGEM</h1>
 
+    <div id="sec-dec-scroll" style="position:relative;top:-10px;height:1px;"></div>
     <div id="sec-dec" class="card anchor card-destinatario">
 
       <label for="cipherIn" class="TEXTO_PADRAO">
@@ -354,15 +355,15 @@
     });
 
     function scrollAdjEnc(){
-      const sec = document.getElementById('sec-enc');
+      const sec = document.getElementById('sec-enc-scroll');
       sec.scrollIntoView({behavior:'smooth'});
       setTimeout(()=>{ window.scrollBy(0, -140); }, 350);
     }
 
     function scrollAdjDec(){
-      const sec = document.getElementById('sec-dec');
+      const sec = document.getElementById('sec-dec-scroll');
       sec.scrollIntoView({behavior:'smooth'});
-      setTimeout(()=>{ window.scrollBy(0, 140); }, 350);
+      setTimeout(()=>{ window.scrollBy(0, 140); }, 250);
     }
 
   </script>
