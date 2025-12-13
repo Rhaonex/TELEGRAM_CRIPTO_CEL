@@ -276,15 +276,15 @@
             <label for="passDecrypt" style="margin-bottom:0">SENHA</label>
             <label class="small" style="display:flex;align-items:center;gap:4px;margin-bottom:0">
             <input id="passDecrypt" type="text" placeholder="senha pra decript">
-            <input id="toggleShowEnc" type="checkbox"> OCULTAR </label>
+            <input id="toggleShowDec" type="checkbox" style="margin-left:12px;">OCULTAR</label>
           </div>
         </div>
       </div>
 
       <div class="actions">
         <button id="btnDecrypt"   style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')">DECRIP</button>
-        <!-- button id="btnCopyDec"   style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>COPIAR</button -->
-        <!-- button id="btnReEncrypt" style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>RECRIP</button -->
+        <button id="btnCopyDec"   style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>COPIAR</button>
+        <button id="btnReEncrypt" style="background:#000077;color:#006BC5;font-weight:bold;text-shadow:0 0 6px #400000;border:3px solid #0000FF;border-radius:8px" onclick="scrollToSection('sec-enc')" disabled>RECRIP</button>
       </div>
 
       <div style="margin-top:16px;margin-bottom:10px;display:flex;align-items:center;gap:24px">
@@ -313,7 +313,7 @@
 
     <div class="RHAONE">
 
-       RHAONE MOAJ - 2025-12-12_122421
+       RHAONE MOAJ - 2025-12-13_065742
 
       <br>
       <!--
@@ -355,7 +355,19 @@
     const decOutEl  = document.getElementById('decOut');
 
     const toggleEnc = document.getElementById('toggleShowEnc');
+    if(toggleEnc){
+      toggleEnc.addEventListener('change', ()=>{
+        passEncEl.type = toggleEnc.checked ? 'text' : 'password';
+      });
+    }
+
     const toggleDec = document.getElementById('toggleShowDec');
+    if(toggleDec){
+      toggleDec.addEventListener('change', ()=>{
+        passDecEl.type = toggleDec.checked ? 'text' : 'password';
+      });
+    }
+
     if(toggleEnc) toggleEnc.addEventListener('change',()=>{ passEncEl.type = toggleEnc.checked ? 'text':'password'; });
     if(toggleDec) toggleDec.addEventListener('change',()=>{ passDecEl.type = toggleDec.checked ? 'text':'password'; });
 
@@ -411,22 +423,40 @@
   // --- FIN - BOTAO COPIAR SAIDA CRIPT (SEGURANCA: CHECA SE ELEMENTOS EXISTEM)
 
     document.getElementById('btnDecrypt').addEventListener('click', async ()=>{
-      try {
-        const data = (document.getElementById('cipherIn').value || '');
-        if(!data){ popup_errado ('COLE A MENS CRIPTADA ABAIXO'); return; }
-        if(!passDecEl.value){ popup_errado ('FALTOU A SENHA'); return; }
-        const btn = document.getElementById('btnDecrypt');
-        btn.disabled = true; btn.textContent = 'PROCESSANDO ...';
+      let btn;
+      try{
+        const data = (document.getElementById('cipherIn').value || '').trim();
+        if(!data){
+          popup_errado('COLE A MENS CRIPTADA ABAIXO');
+          return;
+        }
+
+        if(!passDecEl.value){
+          popup_errado('FALTOU A SENHA');
+          return;
+        }
+
+        btn = document.getElementById('btnDecrypt');
+        btn.disabled = true;
+        btn.textContent = 'PROCESSANDO ...';
+
         const out = await decryptText(data, passDecEl.value);
         decOutEl.textContent = out;
-        document.getElementById('btnCopyDec').disabled = false;
-        document.getElementById('btnReEncrypt').disabled = false;
-      } catch (err){
-        console.error('ERRO DECRYPT', err);
-        popup_errado ('FALHA AO DECRIPT - SENHA OU CONTEUDO INVALIDO');
-      } finally {
-        const btn = document.getElementById('btnDecrypt');
-        btn.disabled = false; btn.textContent = 'DECRIPT';
+
+        const btnCopy = document.getElementById('btnCopyDec');
+        if(btnCopy) btnCopy.disabled = false;
+
+        const btnReEnc = document.getElementById('btnReEncrypt');
+        if(btnReEnc) btnReEnc.disabled = false;
+
+      }catch(err){
+        console.error('ERRO REAL DE DECRIPT', err);
+        popup_errado('ERRO INTERNO AO PROCESSAR A MENSAGEM');
+      }finally{
+        if(btn){
+          btn.disabled = false;
+          btn.textContent = 'DECRIP';
+        }
       }
     });
 
